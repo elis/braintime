@@ -11,21 +11,38 @@
 		    socket.emit('my other event', { my: 'data' });
 		  });
 
+		  socket.on('brainSignal', function (data) {
+		  	addLog(data);
+		  })
+
 		  var addLog = function (line) {
 		  	var logger = document.getElementById('log');
+		  	if ($.isArray(line)) line=line.join(' ');
+
 		  	logger.innerHTML = logger.innerHTML + '\n' + line;
 		  }
 
 		  $(function() {
 		  	$('#clicker').on('click', function() {
-		  		socket.emit('do', {thing: 'stuff'});
-		  	})
+		  		socket.emit('do', {thing: 'stuff'}, function (res) {
+		  			if (res)
+			  			addLog('Result from do: '+JSON.stringify(res));
+		  		});
+		  	});
+
+		  	$('#testVal').on('click', function (event) {
+		  		var value = Math.floor(Math.random()*100000);
+		  		socket.emit('valtest', value, function (res) {
+		  			addLog(['Value given:', value, 'Result received:', res]);
+		  		});
+		  	});
 		  })
 		</script>
 	</head>
 	<body>
 		<h1>Brain Time Viewer</h1>
 		<button id="clicker">Click Me!</button>
+		<button id="testVal">Test Value</button>
 		<pre id="log"></pre>
 	</body>
 </html>
